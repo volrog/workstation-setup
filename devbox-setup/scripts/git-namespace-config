@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s <namespace>\n' "${0##*/}"
+  printf 'Example: %s actonic\n' "${0##*/}"
+}
+
+if [ "$#" -ne 1 ]; then
+  usage >&2
+  exit 1
+fi
+
+namespace="$1"
+
+case "$namespace" in
+  ''|*/*|*' '*|*[^A-Za-z0-9._-]*)
+    printf 'Invalid namespace: %s\n' "$namespace" >&2
+    printf 'Use letters, numbers, dots, underscores, or dashes.\n' >&2
+    exit 1
+    ;;
+esac
+
+if ! command -v git >/dev/null 2>&1; then
+  printf 'git is required but was not found in PATH.\n' >&2
+  exit 1
+fi
+
+namespace_dir="$HOME/projects/$namespace"
+namespace_config="$namespace_dir/.gitconfig"
+include_key="includeIf.gitdir:~/projects/$namespace/.path"
+include_path="~/projects/$namespace/.gitconfig"
+
+mkdir -p "$namespace_dir"
+
+if [ ! -f "$namespace_config" ]; then
+  cat >"$namespace_config" <<'EOF'
+[user]
+	# email = your.work@email.com
+EOF
+fi
+
+if ! git config --global --get-all "$include_key" 2>/dev/null | grep -Fx -- "$include_path" >/dev/null 2>&1; then
+  git config --global --add "$include_key" "$include_path"
+fi
+
+printf 'Namespace Git config is ready: %s\n' "$namespace_config"

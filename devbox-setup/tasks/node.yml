@@ -1,0 +1,50 @@
+---
+- name: Check if NVM is installed
+  ansible.builtin.stat:
+    path: "{{ devbox_home }}/.nvm/nvm.sh"
+  become_user: "{{ devbox_user }}"
+  register: nvm_script
+
+- name: Install NVM
+  ansible.builtin.shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{ devbox_nvm_version }}/install.sh | bash
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ devbox_home }}"
+    NVM_DIR: "{{ devbox_home }}/.nvm"
+  become_user: "{{ devbox_user }}"
+  when: not nvm_script.stat.exists
+
+- name: Install Node.js with NVM
+  ansible.builtin.shell: |
+    export NVM_DIR="{{ devbox_home }}/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm install {{ devbox_node_version }}
+    nvm alias default {{ devbox_node_version }}
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ devbox_home }}"
+    NVM_DIR: "{{ devbox_home }}/.nvm"
+  become_user: "{{ devbox_user }}"
+  register: node_install
+  changed_when: "'is already installed' not in node_install.stderr"
+
+- name: Install global npm packages
+  ansible.builtin.shell: |
+    export NVM_DIR="{{ devbox_home }}/.nvm"
+    . "$NVM_DIR/nvm.sh"
+    nvm use default >/dev/null
+    if ! npm ls -g {{ item }} --depth=0 >/dev/null 2>&1; then
+      npm install -g {{ item }}
+    fi
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ devbox_home }}"
+    NVM_DIR: "{{ devbox_home }}/.nvm"
+  become_user: "{{ devbox_user }}"
+  loop: "{{ devbox_npm_global_packages }}"
+  register: npm_global_package_install
+  changed_when: "'added' in npm_global_package_install.stdout | lower or 'changed' in npm_global_package_install.stdout | lower"

@@ -5,3 +5,5 @@
 
 *.local.md
 agent
+devbox-setup/inventory.ini
+devbox-setup/config.yml

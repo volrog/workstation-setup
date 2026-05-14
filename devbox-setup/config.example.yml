@@ -1,0 +1,30 @@
+---
+# Copy this file to config.yml if you need local overrides.
+# config.yml is gitignored.
+
+# Feature flags.
+# configure_packages: true
+# configure_directories: true
+# configure_firewall: true
+# configure_ssh: true
+# configure_fail2ban: true
+# configure_unattended_upgrades: true
+# configure_docker: true
+# configure_node: true
+# configure_bun: true
+# configure_opencode: true
+# configure_dotfiles: true
+# configure_caddy: false
+
+# User and runtime settings.
+# devbox_user: developer
+# devbox_home: /home/developer
+# devbox_apt_upgrade: true
+# devbox_nvm_version: "v0.40.3"
+# devbox_node_version: "22"
+# devbox_npm_global_packages:
+#   - "@forge/cli"
+# devbox_directories:
+#   - /home/developer/projects
+#   - /home/developer/sandbox
+#   - /home/developer/scripts

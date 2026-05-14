@@ -1,0 +1,16 @@
+---
+- name: Check if OpenCode is installed
+  ansible.builtin.stat:
+    path: "{{ devbox_home }}/.opencode/bin/opencode"
+  become_user: "{{ devbox_user }}"
+  register: opencode_binary
+
+- name: Install OpenCode
+  ansible.builtin.shell: >
+    curl -fsSL https://opencode.ai/install | bash
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ devbox_home }}"
+  become_user: "{{ devbox_user }}"
+  when: not opencode_binary.stat.exists

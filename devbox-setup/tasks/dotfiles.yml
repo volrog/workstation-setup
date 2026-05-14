@@ -1,0 +1,37 @@
+---
+- name: Copy git config
+  ansible.builtin.copy:
+    src: dotfiles/gitconfig
+    dest: "{{ devbox_home }}/.gitconfig"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+
+- name: Copy tmux config
+  ansible.builtin.copy:
+    src: dotfiles/tmux.conf
+    dest: "{{ devbox_home }}/.tmux.conf"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+
+- name: Copy zsh config
+  ansible.builtin.copy:
+    src: dotfiles/zshrc
+    dest: "{{ devbox_home }}/.zshrc"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+
+- name: Copy Git namespace config helper
+  ansible.builtin.copy:
+    src: scripts/git-namespace-config
+    dest: "{{ devbox_home }}/scripts/git-namespace-config"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0755"
+
+- name: Set zsh as default shell
+  ansible.builtin.user:
+    name: "{{ devbox_user }}"
+    shell: /usr/bin/zsh

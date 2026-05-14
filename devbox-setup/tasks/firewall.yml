@@ -1,0 +1,16 @@
+---
+- name: Allow configured ports through firewall
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ devbox_firewall_ports }}"
+
+- name: Deny incoming traffic by default
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Enable firewall
+  community.general.ufw:
+    state: enabled

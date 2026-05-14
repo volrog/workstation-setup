@@ -1,0 +1,10 @@
+[user]
+	name = Aleksandr Gorlov
+	email = volrog.inbox@gmail.com
+[init]
+	defaultbranch = master
+[pull]
+	rebase = true
+[core]
+	editor = vim
+	autocrlf = input

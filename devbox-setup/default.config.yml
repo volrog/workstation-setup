@@ -1,0 +1,78 @@
+---
+# Feature flags. Override these in config.yml to skip parts of the setup.
+configure_packages: true
+configure_directories: true
+configure_firewall: true
+configure_ssh: true
+configure_fail2ban: true
+configure_unattended_upgrades: true
+configure_docker: true
+configure_node: true
+configure_bun: true
+configure_opencode: true
+configure_dotfiles: true
+configure_caddy: true
+
+# User account.
+devbox_user: developer
+devbox_home: /home/developer
+
+# Upgrade installed apt packages during package setup.
+devbox_apt_upgrade: true
+
+# Node.js is installed through NVM. npm is included with Node.js.
+devbox_nvm_version: "v0.40.3"
+devbox_node_version: "22"
+devbox_npm_global_packages:
+  - "@forge/cli"
+
+# User directories created by the playbook.
+devbox_directories:
+  - "{{ devbox_home }}/projects"
+  - "{{ devbox_home }}/sandbox"
+  - "{{ devbox_home }}/scripts"
+
+# Packages installed through apt.
+devbox_apt_packages:
+  # Core CLI tools
+  - curl
+  - wget
+  - ca-certificates
+  - gnupg
+  - unzip
+
+  # Git and GitHub
+  - git
+  - gh
+  - lazygit
+
+  # Build tools
+  - build-essential
+
+  # CLI productivity
+  - jq
+  - ripgrep
+  - fd-find
+
+  # Shell and terminal
+  - ncurses-term
+  - tmux
+  - zsh
+
+  # Monitoring
+  - htop
+  - btop
+
+  # Security
+  - ufw
+
+# Docker packages installed through apt.
+devbox_docker_packages:
+  - docker.io
+  - docker-compose-v2
+
+# Public TCP ports allowed by UFW.
+devbox_firewall_ports:
+  - "22"
+  - "80"
+  - "443"

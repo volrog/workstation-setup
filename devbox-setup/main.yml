@@ -1,0 +1,86 @@
+---
+- name: Configure Ubuntu devbox
+  hosts: devbox
+  become: true
+
+  vars_files:
+    - default.config.yml
+
+  pre_tasks:
+    - name: Include local config overrides
+      ansible.builtin.include_vars: "{{ item }}"
+      with_fileglob:
+        - "{{ playbook_dir }}/config.yml"
+      tags: ["always"]
+
+  tasks:
+    - name: Configure apt packages
+      ansible.builtin.import_tasks: tasks/packages.yml
+      when: configure_packages
+      tags: ["packages"]
+
+    - name: Configure user directories
+      ansible.builtin.import_tasks: tasks/directories.yml
+      when: configure_directories
+      tags: ["directories"]
+
+    - name: Configure firewall
+      ansible.builtin.import_tasks: tasks/firewall.yml
+      when: configure_firewall
+      tags: ["firewall"]
+
+    - name: Configure SSH hardening
+      ansible.builtin.import_tasks: tasks/ssh.yml
+      when: configure_ssh
+      tags: ["ssh"]
+
+    - name: Configure fail2ban
+      ansible.builtin.import_tasks: tasks/fail2ban.yml
+      when: configure_fail2ban
+      tags: ["fail2ban", "security"]
+
+    - name: Configure unattended security upgrades
+      ansible.builtin.import_tasks: tasks/unattended-upgrades.yml
+      when: configure_unattended_upgrades
+      tags: ["unattended-upgrades", "security"]
+
+    - name: Configure Docker
+      ansible.builtin.import_tasks: tasks/docker.yml
+      when: configure_docker
+      tags: ["docker"]
+
+    - name: Configure Node.js and npm
+      ansible.builtin.import_tasks: tasks/node.yml
+      when: configure_node
+      tags: ["node"]
+
+    - name: Configure Bun
+      ansible.builtin.import_tasks: tasks/bun.yml
+      when: configure_bun
+      tags: ["bun"]
+
+    - name: Configure OpenCode
+      ansible.builtin.import_tasks: tasks/opencode.yml
+      when: configure_opencode
+      tags: ["opencode"]
+
+    - name: Configure dotfiles and shell
+      ansible.builtin.import_tasks: tasks/dotfiles.yml
+      when: configure_dotfiles
+      tags: ["dotfiles"]
+
+    - name: Configure Caddy
+      ansible.builtin.import_tasks: tasks/caddy.yml
+      when: configure_caddy
+      tags: ["caddy"]
+
+  handlers:
+    - name: Reload sshd
+      ansible.builtin.service:
+        name: ssh
+        state: reloaded
+
+    - name: Restart fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted

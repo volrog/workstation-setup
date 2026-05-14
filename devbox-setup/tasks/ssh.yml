@@ -1,0 +1,15 @@
+---
+- name: Apply SSH hardening settings
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED DEVBOX SSH HARDENING"
+    insertbefore: BOF
+    block: |
+      PubkeyAuthentication yes
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+      AuthenticationMethods publickey
+      AllowUsers {{ devbox_user }}
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd

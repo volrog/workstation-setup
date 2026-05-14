@@ -1,0 +1,17 @@
+---
+- name: Check if Bun is installed
+  ansible.builtin.stat:
+    path: "{{ devbox_home }}/.bun/bin/bun"
+  become_user: "{{ devbox_user }}"
+  register: bun_binary
+
+- name: Install Bun
+  ansible.builtin.shell: >
+    curl -fsSL https://bun.sh/install | bash
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ devbox_home }}"
+    BUN_INSTALL: "{{ devbox_home }}/.bun"
+  become_user: "{{ devbox_user }}"
+  when: not bun_binary.stat.exists

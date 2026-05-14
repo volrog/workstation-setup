@@ -1,0 +1,15 @@
+# Before using this file, create DNS A records pointing these domains to your VPS IP.
+# Caddy will request HTTPS certificates automatically when DNS is correct and ports
+# 80/tcp and 443/tcp are open.
+
+dev.example.com {
+  reverse_proxy 127.0.0.1:3000
+}
+
+api.dev.example.com {
+  reverse_proxy 127.0.0.1:4000
+}
+
+vite.dev.example.com {
+  reverse_proxy 127.0.0.1:5173
+}

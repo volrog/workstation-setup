@@ -1,0 +1,46 @@
+# Environment
+export PATH="$HOME/scripts:$HOME/.local/bin:$PATH"
+export EDITOR=vim
+
+# NVM and Node.js
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+
+if command -v corepack >/dev/null 2>&1; then
+  corepack enable >/dev/null 2>&1
+fi
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# OpenCode
+[ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
+
+# Atlassian Forge
+if command -v forge >/dev/null 2>&1; then
+  . <(forge --completion)
+fi
+
+# Aliases
+# remove all node_modules recursive (inside nested folders too)
+alias rmnm="find . -name 'node_modules' -type d -prune -print -exec rm -rf '{}' +"
+
+alias gitst='git status'
+alias gitch='git checkout'
+alias gitme='git merge --no-ff'
+alias gitre='git rebase'
+alias gitsu='git submodule update --init --recursive'
+alias gitrec='git rebase --continue'
+
+alias lg='lazygit'
+alias dc='docker compose'
+alias ta='tmux attach'
+alias tn='tmux new -s'
+
+# Startup Directory
+if [ -d "$HOME/projects" ]; then
+  cd "$HOME/projects"
+fi

@@ -1,0 +1,15 @@
+---
+- name: Install Caddy
+  ansible.builtin.apt:
+    name: caddy
+    state: present
+
+- name: Ensure Caddy service is enabled and started
+  ansible.builtin.service:
+    name: caddy
+    enabled: true
+    state: started
+
+- name: Show Caddyfile example location
+  ansible.builtin.debug:
+    msg: "Caddy is installed. Use examples/Caddyfile.example as a manual starting point; this playbook does not overwrite /etc/caddy/Caddyfile."
