@@ -9,16 +9,17 @@ Target server:
 - Projects directory: `/home/developer/projects`
 - Access: SSH keys only after Ansible hardening
 
-This setup is intentionally simple: one bootstrap script, one inventory file, one playbook, small task files, and a few dotfiles.
+This setup is intentionally simple: one local bootstrap script, one inventory file, one playbook, small task files, and a few dotfiles.
 
 ## What Is Included
 
-`bootstrap.sh` is the first-run script for a fresh VPS. It is meant to be run as `root` before Ansible can connect as `developer`.
+`bootstrap.example.sh` is the template for the first-run script for a fresh VPS. Copy it to local `bootstrap.sh`, fill in machine-specific secrets, and run it as `root` before Ansible can connect as `developer`.
 
 It does only the minimum safe preparation:
 
 - installs packages required for Ansible to work on the server
 - creates the `developer` user
+- sets the sudo password you provided for `developer`
 - adds `developer` to `sudo`
 - creates `/home/developer/.ssh/authorized_keys`
 - installs your public SSH key
@@ -45,7 +46,7 @@ It does not disable root login or password authentication. The playbook does tha
 devbox-setup/
   README.md
   ansible.cfg
-  bootstrap.sh
+  bootstrap.example.sh
   inventory.example.ini
   default.config.yml
   config.example.yml
@@ -82,7 +83,7 @@ Before running the full setup, provide machine-specific values and complete exte
 Files to edit locally:
 
 - `~/.ssh/config`: replace `SERVER_IP` with your VPS IP.
-- `bootstrap.sh`: replace `PASTE_YOUR_PUBLIC_KEY_HERE` with your public SSH key.
+- `bootstrap.sh`: copy from `bootstrap.example.sh`, then replace `PASTE_YOUR_PUBLIC_KEY_HERE` and `PASTE_DEVELOPER_SUDO_PASSWORD_HERE`.
 - `inventory.ini`: copy from `inventory.example.ini` and replace `SERVER_IP`, unless you use `Host devbox` in `~/.ssh/config`.
 - `config.yml`: optional local overrides copied from `config.example.yml`.
 
@@ -156,13 +157,22 @@ Ansible can also use the same `Host devbox` entry, so your inventory can be just
 
 ## Run Bootstrap On A New VPS
 
-On your local machine, open `bootstrap.sh` and replace:
+On your local machine, create your local bootstrap script:
+
+```sh
+cp bootstrap.example.sh bootstrap.sh
+```
+
+`bootstrap.sh` is gitignored because it contains machine-specific secrets.
+
+Open `bootstrap.sh` and replace:
 
 ```sh
 SSH_PUBLIC_KEY="PASTE_YOUR_PUBLIC_KEY_HERE"
+SUDO_PASSWORD="PASTE_DEVELOPER_SUDO_PASSWORD_HERE"
 ```
 
-with the content of `~/.ssh/devbox_ed25519.pub`.
+Use the content of `~/.ssh/devbox_ed25519.pub` for `SSH_PUBLIC_KEY`. Choose or generate a strong password for `SUDO_PASSWORD`, then save it in your password manager. Ansible will ask for this password when it uses sudo.
 
 Copy the script to the server as `root`:
 
@@ -276,7 +286,7 @@ Feature flags decide what is part of a full run. Tags decide what to run this ti
 From the `devbox-setup` directory:
 
 ```sh
-ansible-playbook main.yml
+ansible-playbook main.yml --ask-become-pass
 ```
 
 The playbook will:
@@ -308,16 +318,18 @@ The playbook will:
 You can also run only one part using tags:
 
 ```sh
-ansible-playbook main.yml --tags docker
-ansible-playbook main.yml --tags ssh
-ansible-playbook main.yml --tags fail2ban
-ansible-playbook main.yml --tags unattended-upgrades
-ansible-playbook main.yml --tags sysctl
-ansible-playbook main.yml --tags node
-ansible-playbook main.yml --tags bun
-ansible-playbook main.yml --tags opencode
-ansible-playbook main.yml --tags dotfiles
+ansible-playbook main.yml --ask-become-pass --tags docker
+ansible-playbook main.yml --ask-become-pass --tags ssh
+ansible-playbook main.yml --ask-become-pass --tags fail2ban
+ansible-playbook main.yml --ask-become-pass --tags unattended-upgrades
+ansible-playbook main.yml --ask-become-pass --tags sysctl
+ansible-playbook main.yml --ask-become-pass --tags node
+ansible-playbook main.yml --ask-become-pass --tags bun
+ansible-playbook main.yml --ask-become-pass --tags opencode
+ansible-playbook main.yml --ask-become-pass --tags dotfiles
 ```
+
+If Ansible fails with `Missing sudo password`, rerun the command with `--ask-become-pass` and enter the sudo password configured in `bootstrap.sh`.
 
 After Docker group membership changes, reconnect to SSH. This is only needed when `devbox_docker_add_user_to_group` is enabled:
 
@@ -602,6 +614,7 @@ docker run -p 3000:3000 your-app
 - Do not commit private SSH keys.
 - Do not commit `.env` files.
 - Do not commit tokens or credentials.
+- Do not commit local `bootstrap.sh`; it contains your public SSH key and sudo password and is gitignored.
 - Do not commit GitHub CLI, Forge CLI, or OpenCode auth files.
 - Use a separate Git SSH key on the devbox.
 - Treat the `docker` group as root-equivalent access.

@@ -7,3 +7,4 @@
 agent
 devbox-setup/inventory.ini
 devbox-setup/config.yml
+devbox-setup/bootstrap.sh
