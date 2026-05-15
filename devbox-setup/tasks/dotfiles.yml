@@ -23,6 +23,23 @@
     group: "{{ devbox_user }}"
     mode: "0644"
 
+- name: Create zsh config fragments directory
+  ansible.builtin.file:
+    path: "{{ devbox_home }}/.zshrc.d"
+    state: directory
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0755"
+
+- name: Copy zsh config fragments
+  ansible.builtin.copy:
+    src: dotfiles/zshrc.d/
+    dest: "{{ devbox_home }}/.zshrc.d/"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+    directory_mode: "0755"
+
 - name: Copy Forge profile example
   ansible.builtin.copy:
     src: examples/forge-profile.example

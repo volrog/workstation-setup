@@ -68,6 +68,14 @@ devbox-setup/
     dotfiles.yml
     caddy.yml
   dotfiles/
+    zshrc.d/
+      00-env.zsh
+      10-node.zsh
+      15-bun.zsh
+      20-forge.zsh
+      80-prompt.zsh
+      90-aliases.zsh
+      99-startup.zsh
     config/
       opencode/
         tui.json
@@ -324,7 +332,7 @@ The playbook will:
 - install configured global npm packages, including Atlassian Forge CLI
 - install Bun through the official installer
 - install OpenCode through the official installer
-- copy `.gitconfig`, `.tmux.conf`, `.zshrc`, and OpenCode TUI config
+- copy `.gitconfig`, `.tmux.conf`, `.zshrc`, `.zshrc.d`, and OpenCode TUI config
 - copy the Forge CLI env profile example to `~/.forge.example`
 - install `~/scripts/git-namespace-config` for per-namespace Git config
 - set `/usr/bin/zsh` as the default shell
@@ -491,6 +499,22 @@ forge deploy
 ```
 
 Use a Forge CLI scoped token from `https://go.atlassian.com/forge-cli-api-token`, not a regular Atlassian API token.
+
+## Zsh Config Fragments
+
+The main `~/.zshrc` only loads readable `~/.zshrc.d/*.zsh` files in lexical order. The numeric prefixes make dependencies explicit and leave room for future fragments:
+
+```text
+00-env.zsh
+10-node.zsh
+15-bun.zsh
+20-forge.zsh
+80-prompt.zsh
+90-aliases.zsh
+99-startup.zsh
+```
+
+The numbers intentionally use gaps such as `00`, `10`, `20`, and `90` instead of `01`, `02`, `03`. This lets new fragments be inserted later, like `15-bun.zsh` between Node and Forge, without renaming every file and changing existing history.
 
 If a project has an `.nvmrc`, switch to its Node.js version from the project directory:
 
