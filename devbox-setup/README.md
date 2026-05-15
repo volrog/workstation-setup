@@ -180,6 +180,14 @@ Copy the script to the server as `root`:
 scp bootstrap.sh root@SERVER_IP:/root/bootstrap.sh
 ```
 
+If your VPS provider gave you an initial root password, change it before continuing:
+
+```sh
+ssh root@SERVER_IP
+passwd
+exit
+```
+
 Run it on the server:
 
 ```sh
