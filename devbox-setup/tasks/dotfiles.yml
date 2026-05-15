@@ -23,6 +23,14 @@
     group: "{{ devbox_user }}"
     mode: "0644"
 
+- name: Copy Forge profile example
+  ansible.builtin.copy:
+    src: examples/forge-profile.example
+    dest: "{{ devbox_home }}/.forge.example"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+
 - name: Create OpenCode config directory
   ansible.builtin.file:
     path: "{{ devbox_home }}/.config/opencode"

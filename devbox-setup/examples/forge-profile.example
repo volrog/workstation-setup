@@ -1,0 +1,2 @@
+export FORGE_EMAIL="your-email@example.com"
+export FORGE_API_TOKEN="your_forge_cli_scoped_token"

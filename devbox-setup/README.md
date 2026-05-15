@@ -78,6 +78,7 @@ devbox-setup/
     git-namespace-config
   examples/
     Caddyfile.example
+    forge-profile.example
 ```
 
 ## Manual Setup Checklist
@@ -107,7 +108,7 @@ Manual steps after provisioning:
 
 - reconnect over SSH after Docker group membership changes.
 - run `gh auth login`.
-- run `forge login`.
+- create Forge CLI env profiles and use `forge-use <profile>`.
 - run `opencode` and connect an LLM provider.
 - create namespace Git configs with `git-namespace-config <namespace>` when needed.
 - configure `/etc/caddy/Caddyfile` manually if you want public domains.
@@ -324,6 +325,7 @@ The playbook will:
 - install Bun through the official installer
 - install OpenCode through the official installer
 - copy `.gitconfig`, `.tmux.conf`, `.zshrc`, and OpenCode TUI config
+- copy the Forge CLI env profile example to `~/.forge.example`
 - install `~/scripts/git-namespace-config` for per-namespace Git config
 - set `/usr/bin/zsh` as the default shell
 - install Caddy without overwriting `/etc/caddy/Caddyfile`
@@ -447,9 +449,48 @@ Authenticate manually after provisioning:
 
 ```sh
 gh auth login
-forge login
 opencode
 ```
+
+For Atlassian Forge CLI on a VPS, prefer environment profiles instead of `forge login`. Headless servers often cannot provide the local keychain that Forge CLI uses to store credentials securely.
+
+Create one file per Forge account on the server:
+
+```sh
+cp ~/.forge.example ~/.forge-work
+cp ~/.forge.example ~/.forge-personal
+```
+
+Each file should export the account email and Forge CLI scoped token:
+
+```sh
+export FORGE_EMAIL="work@example.com"
+export FORGE_API_TOKEN="forge_cli_scoped_token"
+```
+
+Protect the profile files:
+
+```sh
+chmod 600 ~/.forge-work ~/.forge-personal
+```
+
+`~/.forge-personal` is loaded automatically when a new shell session starts, unless `FORGE_EMAIL` or `FORGE_API_TOKEN` is already set.
+
+Switch the active Forge account in the current shell session:
+
+```sh
+forge-use work
+forge-use personal
+```
+
+After selecting a profile, run Forge commands normally:
+
+```sh
+forge whoami
+forge deploy
+```
+
+Use a Forge CLI scoped token from `https://go.atlassian.com/forge-cli-api-token`, not a regular Atlassian API token.
 
 If a project has an `.nvmrc`, switch to its Node.js version from the project directory:
 
