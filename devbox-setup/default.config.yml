@@ -6,6 +6,7 @@ configure_firewall: true
 configure_ssh: true
 configure_fail2ban: true
 configure_unattended_upgrades: true
+configure_sysctl_hardening: true
 configure_docker: true
 configure_node: true
 configure_bun: true

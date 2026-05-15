@@ -1,0 +1,32 @@
+---
+- name: Install kernel and network hardening sysctl config
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-devbox-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Ignore source-routed packets.
+      net.ipv4.conf.all.accept_source_route = 0
+      net.ipv4.conf.default.accept_source_route = 0
+      net.ipv6.conf.all.accept_source_route = 0
+      net.ipv6.conf.default.accept_source_route = 0
+
+      # Ignore ICMP redirects.
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.default.accept_redirects = 0
+      net.ipv6.conf.all.accept_redirects = 0
+      net.ipv6.conf.default.accept_redirects = 0
+
+      # Do not send ICMP redirects.
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.default.send_redirects = 0
+
+      # Loose mode is safer for devbox VPN/tunnel scenarios than strict mode.
+      net.ipv4.conf.all.rp_filter = 2
+      net.ipv4.conf.default.rp_filter = 2
+
+      net.ipv4.tcp_syncookies = 1
+      kernel.kptr_restrict = 1
+      kernel.dmesg_restrict = 1
+  notify: Reload sysctl

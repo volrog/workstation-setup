@@ -37,7 +37,7 @@ It does not disable root login or password authentication. The playbook does tha
 
 `requirements.yml` lists Ansible collections used by the playbook.
 
-`main.yml` is the main Ansible playbook. It imports small task files from `tasks/` for packages, directories, firewall, SSH hardening, fail2ban, unattended security upgrades, Docker, Node.js, Bun, OpenCode, dotfiles, and Caddy.
+`main.yml` is the main Ansible playbook. It imports small task files from `tasks/` for packages, directories, firewall, SSH hardening, fail2ban, unattended security upgrades, sysctl hardening, Docker, Node.js, Bun, OpenCode, dotfiles, and Caddy.
 
 ## Layout
 
@@ -58,6 +58,7 @@ devbox-setup/
     ssh.yml
     fail2ban.yml
     unattended-upgrades.yml
+    sysctl.yml
     docker.yml
     node.yml
     bun.yml
@@ -95,7 +96,7 @@ Values to review:
 - `devbox_node_version`: defaults to `22`.
 - `devbox_firewall_ports`: defaults to `22`, `80`, and `443` because this devbox commonly exposes web projects through Caddy.
 - feature flags such as `configure_caddy`, `configure_docker`, and `configure_opencode`.
-- security feature flags such as `configure_ssh`, `configure_fail2ban`, and `configure_unattended_upgrades`.
+- security feature flags such as `configure_ssh`, `configure_fail2ban`, `configure_unattended_upgrades`, and `configure_sysctl_hardening`.
 
 Manual steps after provisioning:
 
@@ -290,6 +291,7 @@ The playbook will:
 - validate SSH config before reloading SSH
 - install and enable fail2ban for `sshd`
 - install `unattended-upgrades` and enable daily security update checks
+- apply baseline kernel and network hardening through `/etc/sysctl.d/99-devbox-hardening.conf`
 - install Docker and Docker Compose v2 from Ubuntu packages
 - add `developer` to the `docker` group when `devbox_docker_add_user_to_group` is enabled
 - install `DOCKER-USER` firewall protection when `devbox_docker_protect_ufw` is enabled
@@ -310,6 +312,7 @@ ansible-playbook main.yml --tags docker
 ansible-playbook main.yml --tags ssh
 ansible-playbook main.yml --tags fail2ban
 ansible-playbook main.yml --tags unattended-upgrades
+ansible-playbook main.yml --tags sysctl
 ansible-playbook main.yml --tags node
 ansible-playbook main.yml --tags bun
 ansible-playbook main.yml --tags opencode

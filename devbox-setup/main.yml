@@ -44,6 +44,11 @@
       when: configure_unattended_upgrades
       tags: ["unattended-upgrades", "security"]
 
+    - name: Configure sysctl hardening
+      ansible.builtin.import_tasks: tasks/sysctl.yml
+      when: configure_sysctl_hardening
+      tags: ["sysctl", "security"]
+
     - name: Configure Docker
       ansible.builtin.import_tasks: tasks/docker.yml
       when: configure_docker
@@ -88,6 +93,10 @@
     - name: Reload systemd
       ansible.builtin.systemd_service:
         daemon_reload: true
+
+    - name: Reload sysctl
+      ansible.builtin.command: sysctl --system
+      changed_when: true
 
     - name: Restart Docker UFW protection
       ansible.builtin.systemd_service:
