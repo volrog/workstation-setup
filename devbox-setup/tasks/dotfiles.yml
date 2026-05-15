@@ -23,6 +23,22 @@
     group: "{{ devbox_user }}"
     mode: "0644"
 
+- name: Create OpenCode config directory
+  ansible.builtin.file:
+    path: "{{ devbox_home }}/.config/opencode"
+    state: directory
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0755"
+
+- name: Copy OpenCode TUI config
+  ansible.builtin.copy:
+    src: dotfiles/config/opencode/tui.json
+    dest: "{{ devbox_home }}/.config/opencode/tui.json"
+    owner: "{{ devbox_user }}"
+    group: "{{ devbox_user }}"
+    mode: "0644"
+
 - name: Copy Git namespace config helper
   ansible.builtin.copy:
     src: scripts/git-namespace-config

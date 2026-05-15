@@ -68,6 +68,9 @@ devbox-setup/
     dotfiles.yml
     caddy.yml
   dotfiles/
+    config/
+      opencode/
+        tui.json
     gitconfig
     tmux.conf
     zshrc
@@ -320,7 +323,7 @@ The playbook will:
 - install configured global npm packages, including Atlassian Forge CLI
 - install Bun through the official installer
 - install OpenCode through the official installer
-- copy `.gitconfig`, `.tmux.conf`, and `.zshrc`
+- copy `.gitconfig`, `.tmux.conf`, `.zshrc`, and OpenCode TUI config
 - install `~/scripts/git-namespace-config` for per-namespace Git config
 - set `/usr/bin/zsh` as the default shell
 - install Caddy without overwriting `/etc/caddy/Caddyfile`
