@@ -84,3 +84,12 @@
       ansible.builtin.service:
         name: fail2ban
         state: restarted
+
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Restart Docker UFW protection
+      ansible.builtin.systemd_service:
+        name: devbox-docker-user-firewall.service
+        state: restarted

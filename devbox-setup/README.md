@@ -90,6 +90,8 @@ Values to review:
 - `devbox_user`: defaults to `developer`.
 - `devbox_home`: defaults to `/home/developer`.
 - `devbox_apt_upgrade`: defaults to `true`.
+- `devbox_docker_add_user_to_group`: defaults to `true` for devbox convenience, but gives root-equivalent Docker access.
+- `devbox_docker_protect_ufw`: defaults to `true` to block accidental public Docker port exposure through `DOCKER-USER`.
 - `devbox_node_version`: defaults to `22`.
 - feature flags such as `configure_caddy`, `configure_docker`, and `configure_opencode`.
 - security feature flags such as `configure_ssh`, `configure_fail2ban`, and `configure_unattended_upgrades`.
@@ -288,7 +290,8 @@ The playbook will:
 - install and enable fail2ban for `sshd`
 - install `unattended-upgrades` and enable daily security update checks
 - install Docker and Docker Compose v2 from Ubuntu packages
-- add `developer` to the `docker` group
+- add `developer` to the `docker` group when `devbox_docker_add_user_to_group` is enabled
+- install `DOCKER-USER` firewall protection when `devbox_docker_protect_ufw` is enabled
 - install NVM for `developer`
 - install Node.js `22` through NVM; npm is included with Node.js
 - install configured global npm packages, including Atlassian Forge CLI
@@ -312,7 +315,7 @@ ansible-playbook main.yml --tags opencode
 ansible-playbook main.yml --tags dotfiles
 ```
 
-After Docker group membership changes, reconnect to SSH:
+After Docker group membership changes, reconnect to SSH. This is only needed when `devbox_docker_add_user_to_group` is enabled:
 
 ```sh
 exit
@@ -464,6 +467,30 @@ Use a domain instead of ngrok only when the service runs on the VPS. For example
 
 If the service runs locally on your MacBook, a domain pointing to the VPS does not automatically replace ngrok. You still need a reverse tunnel, ngrok, frp, Tailscale Funnel, Cloudflare Tunnel, or a similar tunnel solution.
 
+## Docker Security
+
+Membership in the `docker` group is root-equivalent on the server. If an attacker gets access to `developer` and that user can run Docker, they can usually escalate to full host control by mounting host paths into a container.
+
+For convenience, `devbox_docker_add_user_to_group` defaults to `true`. Set it to `false` in `config.yml` if you prefer to run Docker through `sudo` instead:
+
+```yaml
+devbox_docker_add_user_to_group: false
+```
+
+Docker can publish ports in a way that bypasses UFW's normal incoming policy. This setup installs a small `DOCKER-USER` chain guard when `devbox_docker_protect_ufw` is enabled. It blocks new external traffic forwarded into Docker bridge networks while preserving container outbound traffic and established connections.
+
+Keep development services bound to localhost, then expose only intentional public traffic through Caddy:
+
+```sh
+docker run -p 127.0.0.1:3000:3000 your-app
+```
+
+Avoid publishing dev services directly to all interfaces:
+
+```sh
+docker run -p 3000:3000 your-app
+```
+
 ## Security Notes
 
 - Do not commit private SSH keys.
@@ -471,6 +498,7 @@ If the service runs locally on your MacBook, a domain pointing to the VPS does n
 - Do not commit tokens or credentials.
 - Do not commit GitHub CLI, Forge CLI, or OpenCode auth files.
 - Use a separate Git SSH key on the devbox.
+- Treat the `docker` group as root-equivalent access.
 - Do not expose development ports like `3000`, `4000`, or `5173` directly to the internet.
 - Expose public web traffic through Caddy on `80` and `443`.
 - Use Caddy basic auth for sensitive development sites.

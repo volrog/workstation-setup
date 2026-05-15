@@ -20,6 +20,8 @@
 # devbox_user: developer
 # devbox_home: /home/developer
 # devbox_apt_upgrade: true
+# devbox_docker_add_user_to_group: true
+# devbox_docker_protect_ufw: true
 # devbox_nvm_version: "v0.40.3"
 # devbox_node_version: "22"
 # devbox_npm_global_packages:

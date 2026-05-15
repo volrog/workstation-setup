@@ -67,6 +67,8 @@ devbox_apt_packages:
   - ufw
 
 # Docker packages installed through apt.
+devbox_docker_add_user_to_group: true
+devbox_docker_protect_ufw: true
 devbox_docker_packages:
   - docker.io
   - docker-compose-v2
