@@ -93,6 +93,7 @@ Values to review:
 - `devbox_docker_add_user_to_group`: defaults to `true` for devbox convenience, but gives root-equivalent Docker access.
 - `devbox_docker_protect_ufw`: defaults to `true` to block accidental public Docker port exposure through `DOCKER-USER`.
 - `devbox_node_version`: defaults to `22`.
+- `devbox_firewall_ports`: defaults to `22`, `80`, and `443` because this devbox commonly exposes web projects through Caddy.
 - feature flags such as `configure_caddy`, `configure_docker`, and `configure_opencode`.
 - security feature flags such as `configure_ssh`, `configure_fail2ban`, and `configure_unattended_upgrades`.
 
@@ -446,6 +447,10 @@ VS Code Remote SSH:
 
 ## Caddy And Domains
 
+Caddy is enabled by default and UFW opens `80/tcp` and `443/tcp` by default. This matches the common devbox workflow where projects need a public HTTPS endpoint or tunnel-like reverse proxy.
+
+This also means anything you add to `/etc/caddy/Caddyfile` is intentionally public. Keep application servers bound to `127.0.0.1`, then expose only selected domains through Caddy.
+
 `examples/Caddyfile.example` contains example reverse proxies:
 
 - `dev.example.com` to `127.0.0.1:3000`
@@ -466,6 +471,40 @@ sudo systemctl reload caddy
 Use a domain instead of ngrok only when the service runs on the VPS. For example, if your Vite app runs on the VPS at `127.0.0.1:5173`, Caddy can expose it as `https://vite.dev.example.com`.
 
 If the service runs locally on your MacBook, a domain pointing to the VPS does not automatically replace ngrok. You still need a reverse tunnel, ngrok, frp, Tailscale Funnel, Cloudflare Tunnel, or a similar tunnel solution.
+
+For sensitive development sites, add authentication in Caddy. Generate a password hash on the server:
+
+```sh
+caddy hash-password
+```
+
+Then use `basic_auth` in the site block:
+
+```caddyfile
+admin.dev.example.com {
+  basic_auth {
+    devuser HASH_FROM_CADDY_HASH_PASSWORD
+  }
+
+  reverse_proxy 127.0.0.1:8080
+}
+```
+
+Check the public web surface after changes:
+
+```sh
+sudo ufw status verbose
+sudo ss -tulpn
+sudo caddy validate --config /etc/caddy/Caddyfile
+```
+
+If a server does not need public web access, disable Caddy and leave only SSH open in `config.yml`:
+
+```yaml
+configure_caddy: false
+devbox_firewall_ports:
+  - "22"
+```
 
 ## Docker Security
 

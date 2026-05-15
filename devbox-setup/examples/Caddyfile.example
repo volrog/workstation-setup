@@ -1,6 +1,9 @@
 # Before using this file, create DNS A records pointing these domains to your VPS IP.
 # Caddy will request HTTPS certificates automatically when DNS is correct and ports
 # 80/tcp and 443/tcp are open.
+#
+# Keep application servers bound to 127.0.0.1. Anything listed here becomes public.
+# Add authentication for sensitive development sites.
 
 dev.example.com {
   reverse_proxy 127.0.0.1:3000
@@ -12,4 +15,15 @@ api.dev.example.com {
 
 vite.dev.example.com {
   reverse_proxy 127.0.0.1:5173
+}
+
+# Sensitive dev site example.
+# Generate a password hash with: caddy hash-password
+# Replace the example hash before using this block.
+admin.dev.example.com {
+  basic_auth {
+    devuser $2a$14$replace_with_hash_from_caddy_hash_password
+  }
+
+  reverse_proxy 127.0.0.1:8080
 }
