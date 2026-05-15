@@ -24,6 +24,18 @@ if command -v forge >/dev/null 2>&1; then
   . <(forge --completion)
 fi
 
+# Prompt
+parse_git_branch() {
+  local branch
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return
+  printf ' %s' "$branch"
+}
+
+autoload -U colors && colors
+setopt PROMPT_SUBST
+
+PROMPT='%n %1~ %F{green}$(parse_git_branch)%f $ '
+
 # Aliases
 # remove all node_modules recursive (inside nested folders too)
 alias rmnm="find . -name 'node_modules' -type d -prune -print -exec rm -rf '{}' +"
