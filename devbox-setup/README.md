@@ -326,6 +326,70 @@ exit
 ssh devbox
 ```
 
+## Post-Provision Security Checks
+
+Run these checks on the server after provisioning to verify the real security state, not just the Ansible result.
+
+Check firewall rules and listening ports:
+
+```sh
+sudo ufw status verbose
+sudo ss -tulpn
+```
+
+Check effective SSH settings:
+
+```sh
+sudo sshd -T | grep -E 'passwordauthentication|permitrootlogin|kbdinteractiveauthentication|authenticationmethods|allowusers|pubkeyauthentication'
+```
+
+Expected SSH values include `passwordauthentication no`, `permitrootlogin no`, `kbdinteractiveauthentication no`, `authenticationmethods publickey`, and `allowusers developer` unless you changed `devbox_user`.
+
+Check fail2ban:
+
+```sh
+sudo fail2ban-client status sshd
+```
+
+Check unattended security updates:
+
+```sh
+systemctl status unattended-upgrades
+systemctl status apt-daily.timer
+systemctl status apt-daily-upgrade.timer
+```
+
+Check sysctl hardening:
+
+```sh
+sysctl net.ipv4.conf.all.rp_filter kernel.dmesg_restrict kernel.kptr_restrict net.ipv4.tcp_syncookies
+```
+
+Check Docker published ports:
+
+```sh
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+```
+
+If `devbox_docker_protect_ufw` is enabled, check the `DOCKER-USER` chain:
+
+```sh
+sudo iptables -S DOCKER-USER
+sudo iptables -L DOCKER-USER -n -v
+```
+
+Check Caddy config before exposing domains:
+
+```sh
+sudo caddy validate --config /etc/caddy/Caddyfile
+```
+
+Check recent service logs after provisioning:
+
+```sh
+sudo journalctl -u ssh -u fail2ban -u caddy --since "1 hour ago"
+```
+
 ## Check Tools
 
 Check Docker:
