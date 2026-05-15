@@ -1,6 +1,7 @@
 ---
 # Feature flags. Override these in config.yml to skip parts of the setup.
 configure_packages: true
+configure_lazygit: true
 configure_directories: true
 configure_firewall: true
 configure_ssh: true
@@ -45,7 +46,6 @@ devbox_apt_packages:
   # Git and GitHub
   - git
   - gh
-  - lazygit
 
   # Build tools
   - build-essential

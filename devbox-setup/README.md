@@ -38,7 +38,7 @@ It does not disable root login or password authentication. The playbook does tha
 
 `requirements.yml` lists Ansible collections used by the playbook.
 
-`main.yml` is the main Ansible playbook. It imports small task files from `tasks/` for packages, directories, firewall, SSH hardening, fail2ban, unattended security upgrades, sysctl hardening, Docker, Node.js, Bun, OpenCode, dotfiles, and Caddy.
+`main.yml` is the main Ansible playbook. It imports small task files from `tasks/` for packages, lazygit, directories, firewall, SSH hardening, fail2ban, unattended security upgrades, sysctl hardening, Docker, Node.js, Bun, OpenCode, dotfiles, and Caddy.
 
 ## Layout
 
@@ -54,6 +54,7 @@ devbox-setup/
   main.yml
   tasks/
     packages.yml
+    lazygit.yml
     directories.yml
     firewall.yml
     ssh.yml
@@ -96,7 +97,7 @@ Values to review:
 - `devbox_docker_protect_ufw`: defaults to `true` to block accidental public Docker port exposure through `DOCKER-USER`.
 - `devbox_node_version`: defaults to `22`.
 - `devbox_firewall_ports`: defaults to `22`, `80`, and `443` because this devbox commonly exposes web projects through Caddy.
-- feature flags such as `configure_caddy`, `configure_docker`, and `configure_opencode`.
+- feature flags such as `configure_caddy`, `configure_docker`, `configure_lazygit`, and `configure_opencode`.
 - security feature flags such as `configure_ssh`, `configure_fail2ban`, `configure_unattended_upgrades`, and `configure_sysctl_hardening`.
 
 Manual steps after provisioning:
@@ -301,6 +302,7 @@ The playbook will:
 
 - update the apt cache and upgrade installed apt packages when `devbox_apt_upgrade` is enabled
 - install development tools
+- install the latest lazygit release from GitHub
 - create `/home/developer/projects`, `/home/developer/sandbox`, and `/home/developer/scripts`
 - enable UFW and allow only SSH, HTTP, and HTTPS
 - enforce SSH public key authentication only
@@ -327,6 +329,7 @@ You can also run only one part using tags:
 
 ```sh
 ansible-playbook main.yml --ask-become-pass --tags docker
+ansible-playbook main.yml --ask-become-pass --tags lazygit
 ansible-playbook main.yml --ask-become-pass --tags ssh
 ansible-playbook main.yml --ask-become-pass --tags fail2ban
 ansible-playbook main.yml --ask-become-pass --tags unattended-upgrades

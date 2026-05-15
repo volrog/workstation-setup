@@ -4,6 +4,7 @@
 
 # Feature flags.
 # configure_packages: true
+# configure_lazygit: true
 # configure_directories: true
 # configure_firewall: true
 # configure_ssh: true

@@ -19,6 +19,11 @@
       when: configure_packages
       tags: ["packages"]
 
+    - name: Configure lazygit
+      ansible.builtin.import_tasks: tasks/lazygit.yml
+      when: configure_lazygit
+      tags: ["lazygit"]
+
     - name: Configure user directories
       ansible.builtin.import_tasks: tasks/directories.yml
       when: configure_directories

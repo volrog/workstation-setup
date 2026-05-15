@@ -1,0 +1,47 @@
+---
+- name: Check installed lazygit version
+  ansible.builtin.command: lazygit --version
+  register: lazygit_installed_version
+  changed_when: false
+  failed_when: false
+
+- name: Get latest lazygit release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+    return_content: true
+  register: lazygit_latest_release
+
+- name: Set lazygit release facts
+  ansible.builtin.set_fact:
+    lazygit_latest_version: "{{ lazygit_latest_release.json.tag_name | regex_replace('^v', '') }}"
+    lazygit_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}"
+
+- name: Create lazygit temp directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: lazygit
+  register: lazygit_temp_dir
+  when: lazygit_latest_version not in lazygit_installed_version.stdout
+
+- name: Download and extract lazygit
+  ansible.builtin.unarchive:
+    src: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_latest_version }}/lazygit_{{ lazygit_latest_version }}_Linux_{{ lazygit_arch }}.tar.gz"
+    dest: "{{ lazygit_temp_dir.path }}"
+    remote_src: true
+  when: lazygit_latest_version not in lazygit_installed_version.stdout
+
+- name: Install lazygit binary
+  ansible.builtin.copy:
+    src: "{{ lazygit_temp_dir.path }}/lazygit"
+    dest: /usr/local/bin/lazygit
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  when: lazygit_latest_version not in lazygit_installed_version.stdout
+
+- name: Remove lazygit temp directory
+  ansible.builtin.file:
+    path: "{{ lazygit_temp_dir.path }}"
+    state: absent
+  when: lazygit_latest_version not in lazygit_installed_version.stdout
